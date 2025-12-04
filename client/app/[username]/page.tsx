@@ -76,7 +76,7 @@ export default async function UserProfilePage({ params }: PageProps) {
         />
       </div>
       <div className="mb-6 md:mb-8">
-        <AboutSection content={about?.content} theme={theme} />
+        <AboutSection content={about?.content} blocks={about?.blocks} theme={theme} />
       </div>
       <div className="mb-6 md:mb-8">
         <PortfolioGrid portfolio={portfolio} theme={theme} />

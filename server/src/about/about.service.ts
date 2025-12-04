@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAboutDto } from './dto/update-about.dto';
+import { FileUploadService } from '../file-upload/file-upload.service';
 
 @Injectable()
 export class AboutService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private fileUploadService: FileUploadService,
+  ) {}
 
   async findByUsername(username: string) {
     const user = await this.prisma.user.findUnique({
@@ -30,10 +34,26 @@ export class AboutService {
       throw new NotFoundException('About not found');
     }
 
+    // Prepare update data
+    const updateData: any = {};
+    
+    if (updateAboutDto.content !== undefined) {
+      updateData.content = updateAboutDto.content;
+    }
+    
+    if (updateAboutDto.blocks !== undefined) {
+      // Prisma will automatically serialize JSON
+      updateData.blocks = updateAboutDto.blocks;
+    }
+
     return this.prisma.about.update({
       where: { userId },
-      data: updateAboutDto,
+      data: updateData,
     });
+  }
+
+  async uploadImage(userId: number, file: Express.Multer.File): Promise<string> {
+    return this.fileUploadService.uploadFile(file, `about/${userId}`);
   }
 
   async verifyOwnership(userId: number, aboutUserId: number) {

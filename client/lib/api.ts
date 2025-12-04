@@ -108,8 +108,15 @@ export const educationAPI = {
 export const aboutAPI = {
   getByUsername: (username: string) =>
     api.get(`/users/${username}/about`),
-  update: (data: { content?: string }) =>
+  update: (data: { content?: string; blocks?: any[] }) =>
     api.patch('/about', data),
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post('/about/upload-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Contact API

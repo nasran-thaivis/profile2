@@ -5,9 +5,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { aboutAPI } from '@/lib/api';
+import AboutBlockEditor, { AboutBlock } from './components/AboutBlockEditor';
 
 const aboutSchema = z.object({
   content: z.string().optional(),
+  blocks: z.array(z.object({
+    id: z.string(),
+    type: z.enum(['text', 'skills', 'achievements', 'timeline', 'stats', 'image']),
+    data: z.any(),
+  })).optional(),
 });
 
 type AboutFormData = z.infer<typeof aboutSchema>;
@@ -17,8 +23,8 @@ export default function EditAboutPage() {
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
-
   const [username, setUsername] = useState<string>('');
+  const [blocks, setBlocks] = useState<AboutBlock[]>([]);
 
   const {
     register,
@@ -48,6 +54,23 @@ export default function EditAboutPage() {
       setIsFetching(true);
       const response = await aboutAPI.getByUsername(username);
       setValue('content', response.data.content || '');
+      
+      // Load blocks if available
+      if (response.data.blocks && Array.isArray(response.data.blocks)) {
+        setBlocks(response.data.blocks);
+        setValue('blocks', response.data.blocks);
+      } else {
+        // Migrate old content to text block if exists
+        if (response.data.content) {
+          const textBlock: AboutBlock = {
+            id: Date.now().toString(),
+            type: 'text',
+            data: { content: response.data.content },
+          };
+          setBlocks([textBlock]);
+          setValue('blocks', [textBlock]);
+        }
+      }
     } catch (err: any) {
       setError('Failed to load about section');
     } finally {
@@ -68,7 +91,7 @@ export default function EditAboutPage() {
       setError('');
       setSuccess('');
 
-      await aboutAPI.update(data);
+      await aboutAPI.update({ blocks });
       setSuccess('About section updated successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -103,24 +126,28 @@ export default function EditAboutPage() {
         className="space-y-6 bg-white dark:bg-zinc-900 rounded-lg shadow p-6"
       >
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-            Content
-          </label>
-          <textarea
-            {...register('content')}
-            rows={12}
-            className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-            placeholder="Write about yourself here..."
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-4">Content Blocks</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+            Build your about section using different content blocks. Add, edit, and reorder blocks as needed.
+          </p>
+          <AboutBlockEditor 
+            blocks={blocks} 
+            onChange={(newBlocks) => {
+              setBlocks(newBlocks);
+              setValue('blocks', newBlocks);
+            }} 
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? 'Saving...' : 'Save Changes'}
-        </button>
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isLoading ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
       </form>
     </div>
   );
