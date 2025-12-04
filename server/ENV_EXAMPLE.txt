@@ -1,0 +1,19 @@
+# Copy this file to .env and fill in your actual values
+
+# Database
+DATABASE_URL="mysql://user:password@localhost:3306/dbname"
+
+# JWT Authentication
+JWT_SECRET="your-secret-key-change-this-in-production"
+
+# DigitalOcean Spaces
+DO_SPACES_ENDPOINT="https://internship.sgp1.digitaloceanspaces.com/"
+DO_SPACES_REGION="sgp1"
+DO_SPACES_KEY="DO801RYP6PMR4YBCVGBL"
+DO_SPACES_SECRET="W0fAcvwl6bdQHyJvdNXjfHJCAKvjHk7287xp8SjJAhM"
+DO_SPACES_BUCKET="internship"
+
+# Server Configuration
+PORT=3001
+FRONTEND_URL="http://localhost:3000"
+
