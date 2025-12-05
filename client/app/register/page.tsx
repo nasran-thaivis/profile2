@@ -57,7 +57,28 @@ export default function RegisterPage() {
       localStorage.setItem('token', response.data.access_token);
       router.push('/admin');
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
+      const error = err as { 
+        response?: { 
+          data?: { message?: string };
+          status?: number;
+        };
+        message?: string;
+        code?: string;
+      };
+      
+      // Handle network errors (no response)
+      if (!error.response) {
+        if (error.code === 'ERR_NETWORK' || error.message?.includes('Network')) {
+          setApiError('Cannot connect to server. Please check your connection and try again.');
+        } else if (error.message?.includes('CORS')) {
+          setApiError('CORS error: Please check server configuration.');
+        } else {
+          setApiError('Network error. Please try again later.');
+        }
+        return;
+      }
+      
+      // Handle API errors
       const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
       
       // Handle specific API errors
