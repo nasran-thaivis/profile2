@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { profileAPI } from '@/lib/api';
+import { profileAPI, getImageUrl } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/lib/components/Input';
+import { FileInput } from '@/lib/components/FileInput';
 
 const profileSchema = z.object({
   displayName: z.string().optional(),
@@ -25,6 +27,7 @@ export default function EditProfilePage() {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const {
     register,
@@ -33,6 +36,7 @@ export default function EditProfilePage() {
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -68,14 +72,16 @@ export default function EditProfilePage() {
     fetchProfile();
   }, [router, setValue]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = (file: File | null) => {
+    setSelectedFile(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    } else {
+      setAvatarPreview('');
     }
   };
 
@@ -97,9 +103,8 @@ export default function EditProfilePage() {
 
       formData.append('contactInfo', JSON.stringify(contactInfo));
 
-      const avatarInput = document.querySelector<HTMLInputElement>('input[type="file"]');
-      if (avatarInput?.files?.[0]) {
-        formData.append('avatar', avatarInput.files[0]);
+      if (selectedFile) {
+        formData.append('avatar', selectedFile);
       }
 
       await profileAPI.update(formData);
@@ -140,30 +145,29 @@ export default function EditProfilePage() {
           <div className="flex items-center gap-4">
             {avatarPreview && (
               <img
-                src={avatarPreview}
+                src={avatarPreview.startsWith('data:') ? avatarPreview : getImageUrl(avatarPreview)}
                 alt="Preview"
                 className="w-20 h-20 rounded-full object-cover"
               />
             )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-zinc-700 dark:text-zinc-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
+            <div className="flex-1">
+              <FileInput
+                label=""
+                name="avatar"
+                accept="image/*"
+                maxSize={5}
+                onChange={handleFileChange}
+                showPreview={false}
+              />
+            </div>
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-            Display Name
-          </label>
-          <input
-            type="text"
-            {...register('displayName')}
-            className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <Input
+          label="Display Name"
+          register={register('displayName')}
+          type="text"
+        />
 
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
@@ -177,57 +181,33 @@ export default function EditProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              {...register('email')}
-              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-            )}
-          </div>
+          <Input
+            label="Email"
+            register={register('email')}
+            type="email"
+            error={errors.email?.message}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Phone
-            </label>
-            <input
-              type="tel"
-              {...register('phone')}
-              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <Input
+            label="Phone"
+            register={register('phone')}
+            type="tel"
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Location
-            </label>
-            <input
-              type="text"
-              {...register('location')}
-              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <Input
+            label="Location"
+            register={register('location')}
+            type="text"
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              Website
-            </label>
-            <input
-              type="url"
-              {...register('website')}
-              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.website && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.website.message}</p>
-            )}
-          </div>
+          <Input
+            label="Website"
+            register={register('website')}
+            type="url"
+            error={errors.website?.message}
+          />
         </div>
 
         <button

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { X, GripVertical, Type, Award, TrendingUp, Image as ImageIcon, Calendar, BarChart, LucideIcon, Upload } from 'lucide-react';
-import { aboutAPI } from '@/lib/api';
+import { aboutAPI, getImageUrl } from '@/lib/api';
 
 export type BlockType = 'text' | 'skills' | 'achievements' | 'timeline' | 'stats' | 'image';
 
@@ -484,7 +484,7 @@ function BlockEditor({ block, onUpdate }: BlockEditorProps) {
               <div className="mt-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={imageData.url}
+                  src={getImageUrl(imageData.url)}
                   alt={imageData.alt || 'Preview'}
                   className="max-w-full h-auto max-h-48 rounded border border-zinc-300 dark:border-zinc-700"
                 />
@@ -579,7 +579,7 @@ function BlockPreview({ block }: BlockPreviewProps) {
       const imageData = block.data as ImageBlockData;
       return imageData.url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageData.url} alt={imageData.alt || ''} className="max-w-full h-auto rounded" />
+        <img src={getImageUrl(imageData.url)} alt={imageData.alt || ''} className="max-w-full h-auto rounded" />
       ) : (
         <p className="text-zinc-400 text-sm">No image URL provided</p>
       );

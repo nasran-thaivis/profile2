@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { portfolioAPI } from '@/lib/api';
+import { portfolioAPI, getImageUrl } from '@/lib/api';
 import { Plus, Edit, Trash2, X } from 'lucide-react';
+import { Input } from '@/lib/components/Input';
+import { FileInput } from '@/lib/components/FileInput';
 
 const portfolioSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -33,6 +35,8 @@ export default function ManagePortfolioPage() {
 
   const [username, setUsername] = useState<string>('');
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -40,6 +44,7 @@ export default function ManagePortfolioPage() {
     formState: { errors },
   } = useForm<PortfolioFormData>({
     resolver: zodResolver(portfolioSchema),
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -85,9 +90,8 @@ export default function ManagePortfolioPage() {
       if (data.description) formData.append('description', data.description);
       if (data.link) formData.append('link', data.link);
 
-      const imageInput = document.querySelector<HTMLInputElement>('input[name="image"]');
-      if (imageInput?.files?.[0]) {
-        formData.append('image', imageInput.files[0]);
+      if (selectedFile) {
+        formData.append('image', selectedFile);
       }
 
       if (editingItem) {
@@ -131,6 +135,7 @@ export default function ManagePortfolioPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingItem(null);
+    setSelectedFile(null);
     reset();
   };
 
@@ -170,7 +175,7 @@ export default function ManagePortfolioPage() {
             >
               {item.imageUrl && (
                 <img
-                  src={item.imageUrl}
+                  src={getImageUrl(item.imageUrl)}
                   alt={item.title}
                   className="w-full h-48 object-cover"
                 />
@@ -222,21 +227,12 @@ export default function ManagePortfolioPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  {...register('title')}
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-                />
-                {errors.title && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.title.message}
-                  </p>
-                )}
-              </div>
+              <Input
+                label="Title *"
+                register={register('title')}
+                type="text"
+                error={errors.title?.message}
+              />
 
               <div>
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
@@ -249,33 +245,21 @@ export default function ManagePortfolioPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Link
-                </label>
-                <input
-                  type="url"
-                  {...register('link')}
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500"
-                />
-                {errors.link && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.link.message}
-                  </p>
-                )}
-              </div>
+              <Input
+                label="Link"
+                register={register('link')}
+                type="url"
+                error={errors.link?.message}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Image
-                </label>
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  className="block w-full text-sm text-zinc-700 dark:text-zinc-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-              </div>
+              <FileInput
+                label="Image"
+                name="image"
+                accept="image/*"
+                maxSize={5}
+                onChange={setSelectedFile}
+                showPreview={true}
+              />
 
               <div className="flex gap-4 pt-4">
                 <button

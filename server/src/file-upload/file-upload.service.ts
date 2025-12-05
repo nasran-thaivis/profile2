@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import * as https from 'https';
+import { Readable } from 'stream';
 
 @Injectable()
 export class FileUploadService {
@@ -56,14 +57,31 @@ export class FileUploadService {
       Key: uniqueKey,
       Body: file.buffer,
       ContentType: file.mimetype,
-      ACL: 'public-read',
+      // Removed ACL: 'public-read' to make files private
     });
 
     await this.s3Client.send(command);
 
-    // Return public URL for DigitalOcean Spaces
-    // Format: https://{bucket}.{region}.digitaloceanspaces.com/{key}
-    return `https://${this.bucketName}.${this.region}.digitaloceanspaces.com/${uniqueKey}`;
+    // Return only the path/key instead of full URL
+    return uniqueKey;
+  }
+
+  async getFileStream(key: string): Promise<{ stream: Readable; contentType: string }> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+
+    const response = await this.s3Client.send(command);
+    
+    if (!response.Body) {
+      throw new Error('File not found or empty');
+    }
+
+    return {
+      stream: response.Body as Readable,
+      contentType: response.ContentType || 'application/octet-stream',
+    };
   }
 }
 

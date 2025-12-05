@@ -7,6 +7,17 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.digitaloceanspaces.com',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+        pathname: '/files/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+        pathname: '/files/**',
+      },
     ],
   },
 };

@@ -137,5 +137,32 @@ export const themeAPI = {
     api.patch('/profile/theme', theme),
 };
 
+// Helper function to get image URL
+// Supports both old full URLs (for backward compatibility) and new paths
+export function getImageUrl(pathOrUrl: string | null | undefined): string {
+  if (!pathOrUrl) {
+    return '';
+  }
+  
+  // If it's already a full URL (starts with http), return as-is (backward compatibility)
+  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+    return pathOrUrl;
+  }
+  
+  // Otherwise, it's a path - construct URL to proxy endpoint
+  // Use NEXT_PUBLIC_API_URL for client-side, or default to localhost:3001
+  // In server-side, we need to use the full URL
+  const apiUrl = typeof window !== 'undefined' 
+    ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001')
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+  
+  // Remove trailing slash from apiUrl if present
+  const baseUrl = apiUrl.replace(/\/$/, '');
+  // Remove leading slash from path if present
+  const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl.slice(1) : pathOrUrl;
+  
+  return `${baseUrl}/files/${cleanPath}`;
+}
+
 export default api;
 

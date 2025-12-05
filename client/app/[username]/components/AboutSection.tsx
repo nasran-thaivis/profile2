@@ -1,3 +1,5 @@
+import { getImageUrl } from '@/lib/api';
+
 interface ThemeColors {
   primary?: string;
   secondary?: string;
@@ -211,7 +213,7 @@ function BlockRenderer({ block, theme }: { block: AboutBlock; theme: any }) {
       return block.data.url ? (
         <div className="my-4">
           <img 
-            src={block.data.url} 
+            src={getImageUrl(block.data.url)} 
             alt={block.data.alt || ''} 
             className="w-full rounded-lg shadow-md"
           />

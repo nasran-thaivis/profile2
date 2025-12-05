@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/api';
 
 interface ThemeColors {
   primary?: string;
@@ -49,11 +50,12 @@ export default function HeroSection({ displayName, bio, avatarUrl, theme }: Hero
             >
               {avatarUrl ? (
                 <Image
-                  src={avatarUrl}
+                  src={getImageUrl(avatarUrl)}
                   alt={displayName || 'Avatar'}
                   width={160}
                   height={160}
                   className="w-full h-full object-cover"
+                  unoptimized
                 />
               ) : (
                 <div 

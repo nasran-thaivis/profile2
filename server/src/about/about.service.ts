@@ -11,12 +11,27 @@ export class AboutService {
   ) {}
 
   async findByUsername(username: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      include: {
-        about: true,
-      },
-    });
+    // Check if the parameter looks like an email
+    const isEmail = username.includes('@');
+    
+    let user;
+    if (isEmail) {
+      // If it's an email, look up by email
+      user = await this.prisma.user.findUnique({
+        where: { email: username },
+        include: {
+          about: true,
+        },
+      });
+    } else {
+      // Otherwise, look up by username
+      user = await this.prisma.user.findUnique({
+        where: { username },
+        include: {
+          about: true,
+        },
+      });
+    }
 
     if (!user || !user.about) {
       throw new NotFoundException('About not found');

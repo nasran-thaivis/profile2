@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { authAPI } from '@/lib/api';
 import Link from 'next/link';
 import { LogIn } from 'lucide-react';
+import { Input } from '@/lib/components/Input';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -27,6 +28,7 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -36,8 +38,13 @@ export default function LoginPage() {
       const response = await authAPI.login(data);
       localStorage.setItem('token', response.data.access_token);
       router.push('/admin');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number; data?: { message?: string } } };
+      if (error.response?.status === 401) {
+        setError('Invalid email or password');
+      } else {
+        setError(error.response?.data?.message || 'Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -61,45 +68,21 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                {...register('email')}
-                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="your@email.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-              )}
-            </div>
+            <Input
+              label="Email"
+              register={register('email')}
+              type="email"
+              placeholder="your@email.com"
+              error={errors.email?.message}
+            />
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                {...register('password')}
-                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="••••••••"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            <Input
+              label="Password"
+              register={register('password')}
+              type="password"
+              placeholder="••••••••"
+              error={errors.password?.message}
+            />
 
             <button
               type="submit"

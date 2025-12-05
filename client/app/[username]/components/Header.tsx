@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Home, User, Briefcase, Star, Mail, Menu, X, Github, Linkedin, Twitter, Instagram, Facebook } from 'lucide-react';
+import { getImageUrl } from '@/lib/api';
 
 interface ThemeColors {
   primary?: string;
@@ -106,11 +107,12 @@ export default function Header({ theme, displayName, avatarUrl, contactInfo }: H
                   }}
                 >
                   <Image
-                    src={avatarUrl}
+                    src={getImageUrl(avatarUrl)}
                     alt={displayName || 'Avatar'}
                     width={48}
                     height={48}
                     className="w-full h-full object-cover"
+                    unoptimized
                   />
                 </div>
               ) : (

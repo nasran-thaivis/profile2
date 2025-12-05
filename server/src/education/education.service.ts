@@ -8,14 +8,31 @@ export class EducationService {
   constructor(private prisma: PrismaService) {}
 
   async findByUsername(username: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
-      include: {
-        educations: {
-          orderBy: { createdAt: 'desc' },
+    // Check if the parameter looks like an email
+    const isEmail = username.includes('@');
+    
+    let user;
+    if (isEmail) {
+      // If it's an email, look up by email
+      user = await this.prisma.user.findUnique({
+        where: { email: username },
+        include: {
+          educations: {
+            orderBy: { createdAt: 'desc' },
+          },
         },
-      },
-    });
+      });
+    } else {
+      // Otherwise, look up by username
+      user = await this.prisma.user.findUnique({
+        where: { username },
+        include: {
+          educations: {
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+      });
+    }
 
     if (!user) {
       throw new NotFoundException('User not found');

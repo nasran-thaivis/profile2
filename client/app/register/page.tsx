@@ -8,12 +8,22 @@ import { z } from 'zod';
 import { authAPI } from '@/lib/api';
 import Link from 'next/link';
 import { UserPlus } from 'lucide-react';
+import { Input } from '@/lib/components/Input';
 
 const registerSchema = z
   .object({
-    username: z.string().min(3, 'Username must be at least 3 characters'),
+    username: z
+      .string()
+      .min(4, 'Username must be at least 4 characters')
+      .max(20, 'Username must be at most 20 characters'),
     email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(
+        /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/,
+        'Password too weak. Must contain uppercase, lowercase, and number or special character',
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -25,27 +35,39 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [error, setError] = useState<string>('');
+  const [apiError, setApiError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
-      setError('');
+      setApiError('');
       const { confirmPassword, ...registerData } = data;
       const response = await authAPI.register(registerData);
       localStorage.setItem('token', response.data.access_token);
       router.push('/admin');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
+      
+      // Handle specific API errors
+      if (errorMessage.includes('username') || errorMessage.includes('Username')) {
+        setError('username', { type: 'manual', message: 'Username already taken' });
+      } else if (errorMessage.includes('email') || errorMessage.includes('Email')) {
+        setError('email', { type: 'manual', message: 'Email already registered' });
+      } else {
+        setApiError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -62,94 +84,44 @@ export default function RegisterPage() {
             Register
           </h1>
 
-          {error && (
+          {apiError && (
             <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 rounded">
-              {error}
+              {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                {...register('username')}
-                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="johndoe"
-              />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.username.message}
-                </p>
-              )}
-            </div>
+            <Input
+              label="Username"
+              register={register('username')}
+              type="text"
+              placeholder="johndoe"
+              error={errors.username?.message}
+            />
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                {...register('email')}
-                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="your@email.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-              )}
-            </div>
+            <Input
+              label="Email"
+              register={register('email')}
+              type="email"
+              placeholder="your@email.com"
+              error={errors.email?.message}
+            />
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                {...register('password')}
-                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="••••••••"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            <Input
+              label="Password"
+              register={register('password')}
+              type="password"
+              placeholder="••••••••"
+              error={errors.password?.message}
+            />
 
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                {...register('confirmPassword')}
-                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="••••••••"
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
+            <Input
+              label="Confirm Password"
+              register={register('confirmPassword')}
+              type="password"
+              placeholder="••••••••"
+              error={errors.confirmPassword?.message}
+            />
 
             <button
               type="submit"

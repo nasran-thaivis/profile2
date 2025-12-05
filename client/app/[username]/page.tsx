@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { profileAPI, aboutAPI, portfolioAPI, educationAPI } from '@/lib/api';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
@@ -16,6 +16,9 @@ interface PageProps {
 
 export default async function UserProfilePage({ params }: PageProps) {
   const { username } = await params;
+
+  // Check if the parameter is an email (contains @)
+  const isEmail = username.includes('@');
 
   const [profile, about, portfolio, educations] = await Promise.all([
     profileAPI.getByUsername(username)
@@ -40,6 +43,11 @@ export default async function UserProfilePage({ params }: PageProps) {
 
   if (!profile) {
     notFound();
+  }
+
+  // If accessed with email, redirect to username URL
+  if (isEmail && profile.username && profile.username !== username) {
+    redirect(`/${profile.username}`);
   }
 
   // Extract theme from profile, with defaults

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
+import { getImageUrl } from '@/lib/api';
 
 interface ThemeColors {
   primary?: string;
@@ -100,10 +101,11 @@ export default function PortfolioGrid({ portfolio, theme }: PortfolioGridProps) 
                 {item.imageUrl && (
                   <div className="relative w-full h-48 md:h-56 overflow-hidden flex-shrink-0">
                     <Image
-                      src={item.imageUrl}
+                      src={getImageUrl(item.imageUrl)}
                       alt={item.title}
                       fill
                       className="object-cover transition-transform duration-300 hover:scale-110"
+                      unoptimized
                     />
                   </div>
                 )}
