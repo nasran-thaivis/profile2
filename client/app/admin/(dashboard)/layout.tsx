@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const menuItems = [
     { href: '/admin/profile', label: 'Edit Profile', icon: User },
     { href: '/admin/portfolio', label: 'Manage Portfolio', icon: Briefcase },
-    { href: '/admin/reviews', label: 'Education', icon: Star },
+    { href: '/admin/education', label: 'Education', icon: Star },
     { href: '/admin/about', label: 'Edit About', icon: FileText },
     { href: '/admin/theme', label: 'Theme', icon: Palette },
     { href: '/admin/contacts', label: 'Contact Messages', icon: Mail },
