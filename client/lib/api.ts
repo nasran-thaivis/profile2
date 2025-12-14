@@ -77,31 +77,48 @@ export const educationAPI = {
   getByUsername: (username: string) =>
     api.get(`/users/${username}/educations`),
   create: (data: {
-    type: 'education' | 'internship';
+    type?: 'EDUCATION' | 'WORK' | 'INTERNSHIP' | 'CERTIFICATE';
     institution: string;
     degree: string;
     field?: string;
-    period?: string;
+    startDate?: string; // ISO date string (optional for CERTIFICATE)
+    endDate?: string | null; // ISO date string
+    order?: number;
+    period?: string; // deprecated - kept for backward compatibility
     location?: string;
     description?: string;
     gpa?: string;
     skills?: string;
+    imageUrl?: string;
   }) =>
     api.post('/educations', data),
   update: (id: number, data: {
-    type?: 'education' | 'internship';
+    type?: 'EDUCATION' | 'WORK' | 'INTERNSHIP' | 'CERTIFICATE';
     institution?: string;
     degree?: string;
     field?: string;
-    period?: string;
+    startDate?: string; // ISO date string
+    endDate?: string | null; // ISO date string
+    order?: number;
+    period?: string; // deprecated
     location?: string;
     description?: string;
     gpa?: string;
     skills?: string;
+    imageUrl?: string;
   }) =>
     api.patch(`/educations/${id}`, data),
   delete: (id: number) =>
     api.delete(`/educations/${id}`),
+  reorder: (items: { id: string; order: number }[]) =>
+    api.patch('/educations/reorder', { items }),
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post('/educations/upload-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // About API

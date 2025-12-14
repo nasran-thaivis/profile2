@@ -10,6 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum EducationType {
+  EDUCATION
+  WORK
+  INTERNSHIP
+  CERTIFICATE
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
@@ -58,19 +65,23 @@ model Portfolio {
 }
 
 model Education {
-  id           Int      @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   userId       Int
-  type         String   // 'education' หรือ 'internship'
-  institution  String   // ชื่อสถาบัน/บริษัท
-  degree       String   // วุฒิ/ตำแหน่ง
-  field        String?  // สาขาวิชา
-  period       String?  // ระยะเวลา
-  location     String?  // สถานที่
-  description  String?  @db.Text // รายละเอียด
-  gpa          String?  // GPA (สำหรับ education)
-  skills       String?  @db.Text // Skills (สำหรับ internship, คั่นด้วย comma)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  type         EducationType  @default(EDUCATION)
+  institution  String        // ชื่อสถาบัน/บริษัท
+  degree       String        // วุฒิ/ตำแหน่ง
+  field        String?       // สาขาวิชา
+  startDate    DateTime?     // วันที่เริ่มต้น (optional เพื่อรองรับข้อมูลเก่า)
+  endDate      DateTime?     // วันที่สิ้นสุด (nullable สำหรับ "ปัจจุบัน")
+  order        Int           @default(0) // สำหรับการจัดเรียงลำดับ
+  period       String?       // ระยะเวลา (deprecated - เก็บไว้เพื่อความเข้ากันได้ย้อนหลัง)
+  location     String?       // สถานที่
+  description  String?       @db.Text // รายละเอียด
+  gpa          String?       // GPA (สำหรับ education)
+  skills       String?       @db.Text // Skills (สำหรับ internship, คั่นด้วย comma)
+  imageUrl     String?       // URL สำหรับรูปภาพ (certificate, logo, etc.)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

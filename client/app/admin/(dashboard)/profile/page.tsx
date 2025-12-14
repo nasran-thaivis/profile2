@@ -64,7 +64,7 @@ export default function EditProfilePage() {
         }
         
         setIsFetching(false);
-      } catch (err) {
+      } catch {
         setError('Failed to load profile');
         setIsFetching(false);
       }
@@ -95,7 +95,12 @@ export default function EditProfilePage() {
       formData.append('displayName', data.displayName || '');
       formData.append('bio', data.bio || '');
 
-      const contactInfo: any = {};
+      const contactInfo: {
+        email?: string;
+        phone?: string;
+        location?: string;
+        website?: string;
+      } = {};
       if (data.email) contactInfo.email = data.email;
       if (data.phone) contactInfo.phone = data.phone;
       if (data.location) contactInfo.location = data.location;
@@ -110,8 +115,9 @@ export default function EditProfilePage() {
       await profileAPI.update(formData);
       setSuccess('Profile updated successfully!');
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +150,7 @@ export default function EditProfilePage() {
           </label>
           <div className="flex items-center gap-4">
             {avatarPreview && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={avatarPreview.startsWith('data:') ? avatarPreview : getImageUrl(avatarPreview)}
                 alt="Preview"
