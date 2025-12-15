@@ -9,6 +9,9 @@ interface ThemeColors {
   text?: string;
   card?: string;
   border?: string;
+  preset?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
 }
 
 interface HeroSectionProps {
@@ -24,6 +27,15 @@ export default function HeroSection({ displayName, bio, avatarUrl, theme }: Hero
   const cardColor = theme?.card || '#ffffff';
   const borderColor = theme?.border || '#e4e4e7';
   const primaryColor = theme?.primary || '#3b82f6';
+  const preset = theme?.preset || 'glass-corporate';
+  
+  // Determine 3D class based on preset
+  const get3DCardClass = () => {
+    if (preset === 'glass-corporate') return 'glass-3d-card';
+    if (preset === 'neon-cyber') return 'neon-3d-card';
+    if (preset === 'crypto-verse') return 'crypto-3d-card';
+    return '';
+  };
 
   return (
     <section 
@@ -33,11 +45,10 @@ export default function HeroSection({ displayName, bio, avatarUrl, theme }: Hero
     >
       <div className="max-w-6xl mx-auto">
         <div 
-          className="rounded-2xl p-8 md:p-12 lg:p-16 shadow-xl border"
+          className={`rounded-2xl p-8 md:p-12 lg:p-16 ${get3DCardClass()}`}
           style={{ 
-            backgroundColor: cardColor,
-            borderColor: borderColor,
-            boxShadow: `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)`
+            backgroundColor: preset === 'custom' ? cardColor : undefined,
+            borderColor: preset === 'custom' ? borderColor : undefined,
           }}
         >
           <div className="flex flex-col items-center justify-center">

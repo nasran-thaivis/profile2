@@ -51,15 +51,53 @@ export default async function UserProfilePage({ params }: PageProps) {
   }
 
   // Extract theme from profile, with defaults
-  const theme = profile.theme || {
-    primary: '#3b82f6',
-    secondary: '#8b5cf6',
-    accent: '#10b981',
-    background: '#ffffff',
-    text: '#18181b',
-    card: '#ffffff',
-    border: '#e4e4e7',
-  };
+  // Handle both new structure (with preset and colors) and legacy structure (colors at root)
+  let theme: any;
+  let themePreset: string | undefined;
+  
+  if (profile.theme) {
+    if (profile.theme.colors) {
+      // New structure: { preset: 'glass-corporate', colors: {...} }
+      theme = profile.theme.colors;
+      themePreset = profile.theme.preset;
+      
+      // Map old theme names to new ones for backward compatibility
+      if (themePreset === 'light') themePreset = 'glass-corporate';
+      else if (themePreset === 'dark') themePreset = 'neon-cyber';
+      else if (themePreset === 'vibrant') themePreset = 'crypto-verse';
+    } else if (profile.theme.primary || profile.theme.background) {
+      // Legacy structure: { primary: '#...', background: '#...', ... }
+      theme = profile.theme;
+      themePreset = 'custom';
+    } else {
+      // Empty or invalid theme, use defaults
+      theme = {
+        primary: '#3b82f6',
+        secondary: '#8b5cf6',
+        accent: '#10b981',
+        background: '#ffffff',
+        text: '#18181b',
+        card: '#ffffff',
+        border: '#e4e4e7',
+      };
+      themePreset = 'glass-corporate';
+    }
+  } else {
+    // No theme, use defaults
+    theme = {
+      primary: '#3b82f6',
+      secondary: '#8b5cf6',
+      accent: '#10b981',
+      background: '#ffffff',
+      text: '#18181b',
+      card: '#ffffff',
+      border: '#e4e4e7',
+    };
+    themePreset = 'glass-corporate';
+  }
+  
+  // Add preset to theme object for components
+  theme.preset = themePreset;
 
   return (
     <div 

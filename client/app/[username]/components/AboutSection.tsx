@@ -8,6 +8,9 @@ interface ThemeColors {
   text?: string;
   card?: string;
   border?: string;
+  preset?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
 }
 
 interface AboutBlock {
@@ -28,6 +31,15 @@ export default function AboutSection({ content, blocks, theme }: AboutSectionPro
   const cardColor = theme?.card || '#ffffff';
   const borderColor = theme?.border || '#e4e4e7';
   const primaryColor = theme?.primary || '#3b82f6';
+  const preset = theme?.preset || 'glass-corporate';
+  
+  // Determine 3D class based on preset
+  const get3DCardClass = () => {
+    if (preset === 'glass-corporate') return 'glass-3d-card';
+    if (preset === 'neon-cyber') return 'neon-3d-card';
+    if (preset === 'crypto-verse') return 'crypto-3d-card';
+    return '';
+  };
 
   // Use blocks if available, otherwise fall back to content
   const displayBlocks = blocks && blocks.length > 0 ? blocks : 
@@ -45,11 +57,10 @@ export default function AboutSection({ content, blocks, theme }: AboutSectionPro
     >
       <div className="max-w-6xl mx-auto">
         <div 
-          className="rounded-2xl p-6 md:p-8 lg:p-12 shadow-lg border"
+          className={`rounded-2xl p-6 md:p-8 lg:p-12 ${get3DCardClass()}`}
           style={{ 
-            backgroundColor: cardColor,
-            borderColor: borderColor,
-            boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
+            backgroundColor: preset === 'custom' ? cardColor : undefined,
+            borderColor: preset === 'custom' ? borderColor : undefined,
           }}
         >
           <h2 

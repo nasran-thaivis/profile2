@@ -10,6 +10,9 @@ interface ThemeColors {
   text?: string;
   card?: string;
   border?: string;
+  preset?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
 }
 
 interface PortfolioItem {
@@ -31,6 +34,15 @@ export default function PortfolioGrid({ portfolio, theme }: PortfolioGridProps) 
   const cardColor = theme?.card || '#ffffff';
   const primaryColor = theme?.primary || '#3b82f6';
   const borderColor = theme?.border || '#e4e4e7';
+  const preset = theme?.preset || 'glass-corporate';
+  
+  // Determine 3D class based on preset
+  const get3DCardClass = () => {
+    if (preset === 'glass-corporate') return 'glass-3d-card';
+    if (preset === 'neon-cyber') return 'neon-3d-card';
+    if (preset === 'crypto-verse') return 'crypto-3d-card';
+    return '';
+  };
 
   if (!portfolio || portfolio.length === 0) {
     return (
@@ -41,11 +53,10 @@ export default function PortfolioGrid({ portfolio, theme }: PortfolioGridProps) 
       >
         <div className="max-w-6xl mx-auto">
           <div 
-            className="rounded-2xl p-6 md:p-8 lg:p-12 shadow-lg border"
+            className={`rounded-2xl p-6 md:p-8 lg:p-12 ${get3DCardClass()}`}
             style={{ 
-              backgroundColor: cardColor,
-              borderColor: borderColor,
-              boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
+              backgroundColor: preset === 'custom' ? cardColor : undefined,
+              borderColor: preset === 'custom' ? borderColor : undefined,
             }}
           >
             <h2 
@@ -72,11 +83,10 @@ export default function PortfolioGrid({ portfolio, theme }: PortfolioGridProps) 
     >
       <div className="max-w-6xl mx-auto">
         <div 
-          className="rounded-2xl p-6 md:p-8 lg:p-12 shadow-lg border"
+          className={`rounded-2xl p-6 md:p-8 lg:p-12 ${get3DCardClass()}`}
           style={{ 
-            backgroundColor: cardColor,
-            borderColor: borderColor,
-            boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
+            backgroundColor: preset === 'custom' ? cardColor : undefined,
+            borderColor: preset === 'custom' ? borderColor : undefined,
           }}
         >
           <h2 
@@ -92,10 +102,10 @@ export default function PortfolioGrid({ portfolio, theme }: PortfolioGridProps) 
             {portfolio.map((item) => (
               <div
                 key={item.id}
-                className="rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border flex flex-col"
+                className={`rounded-xl overflow-hidden ${get3DCardClass()} hover-lift flex flex-col`}
                 style={{ 
-                  backgroundColor: cardColor,
-                  borderColor: borderColor
+                  backgroundColor: preset === 'custom' ? cardColor : undefined,
+                  borderColor: preset === 'custom' ? borderColor : undefined,
                 }}
               >
                 {item.imageUrl && (

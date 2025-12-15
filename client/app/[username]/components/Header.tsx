@@ -13,6 +13,9 @@ interface ThemeColors {
   text?: string;
   card?: string;
   border?: string;
+  preset?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
 }
 
 interface HeaderProps {
@@ -73,22 +76,95 @@ export default function Header({ theme, displayName, avatarUrl, contactInfo }: H
   const textColor = theme?.text || '#18181b';
   const borderColor = theme?.border || '#e4e4e7';
   const primaryColor = theme?.primary || '#3b82f6';
-  const isDark = theme?.background === '#000000' || 
-                 theme?.background === '#18181b' || 
-                 (typeof theme?.background === 'string' && theme.background.startsWith('rgb(0,')) || 
-                 (typeof theme?.background === 'string' && theme.background.startsWith('#000'));
+  const preset = theme?.preset || 'glass-corporate';
+  const background = theme?.background || '#ffffff';
+  
+  // Determine if theme is dark
+  const isDark = preset === 'neon-cyber' || 
+                 preset === 'crypto-verse' ||
+                 background === '#0a0a0a' || 
+                 background === '#18181b' || 
+                 background === '#1a1a2e' ||
+                 (typeof background === 'string' && background.startsWith('rgb(0,')) ||
+                 (typeof background === 'string' && background.startsWith('#000')) ||
+                 (typeof background === 'string' && background.startsWith('#0a')) ||
+                 (typeof background === 'string' && background.startsWith('#1a'));
+  
+  // Determine background color based on theme preset (always visible, changes on scroll)
+  const getHeaderBackground = () => {
+    // Always use scrolled state for better visibility
+    switch (preset) {
+      case 'glass-corporate':
+        return scrolled 
+          ? 'rgba(255, 255, 255, 0.95)' 
+          : (bgColor || 'rgba(255, 255, 255, 0.9)');
+      case 'neon-cyber':
+        // Use darker, more visible background when scrolled
+        return scrolled 
+          ? 'rgba(10, 10, 10, 0.98)' 
+          : (bgColor || 'rgba(26, 26, 46, 0.8)');
+      case 'crypto-verse':
+        // Use darker, more visible background when scrolled
+        return scrolled 
+          ? 'rgba(26, 26, 46, 0.98)' 
+          : (bgColor || 'rgba(26, 26, 46, 0.9)');
+      default:
+        // For custom themes, use card color with opacity when scrolled
+        if (scrolled) {
+          return isDark 
+            ? 'rgba(0, 0, 0, 0.95)' 
+            : 'rgba(255, 255, 255, 0.95)';
+        }
+        return bgColor;
+    }
+  };
+
+  // Get 3D class based on preset (always apply when scrolled)
+  const getHeader3DClass = () => {
+    if (!scrolled) return '';
+    switch (preset) {
+      case 'glass-corporate':
+        return 'glass-3d-card';
+      case 'neon-cyber':
+        return 'neon-3d-card';
+      case 'crypto-verse':
+        return 'crypto-3d-card';
+      default:
+        return '';
+    }
+  };
+
+  // Get border color based on theme preset (always visible)
+  const getHeaderBorderColor = () => {
+    if (scrolled) {
+      switch (preset) {
+        case 'neon-cyber':
+          return 'rgba(6, 182, 212, 0.6)'; // Brighter cyan for better visibility
+        case 'crypto-verse':
+          return 'rgba(139, 92, 246, 0.5)'; // Brighter purple for better visibility
+        case 'glass-corporate':
+          return 'rgba(139, 92, 246, 0.2)';
+        default:
+          return borderColor;
+      }
+    }
+    return borderColor;
+  };
 
   return (
     <header 
       className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled ? 'shadow-lg' : 'shadow-sm'
+        scrolled ? `${getHeader3DClass()} shadow-lg` : 'shadow-sm'
       }`}
       style={{ 
-        backgroundColor: scrolled 
-          ? (isDark ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)')
-          : bgColor,
-        borderBottom: `1px solid ${borderColor}`,
+        backgroundColor: getHeaderBackground(),
+        borderBottom: `1px solid ${getHeaderBorderColor()}`,
         backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'none',
+        // Ensure header is always visible
+        position: 'sticky',
+        top: 0,
+        width: '100%',
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

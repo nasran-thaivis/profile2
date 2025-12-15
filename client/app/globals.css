@@ -24,3 +24,199 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ============================================
+   3D Theme CSS Utilities
+   ============================================ */
+
+/* Glass 3D Corporate - Clean white 3D with glass morphism */
+.glass-3d-card {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-3d-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 35px 60px -12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(139, 92, 246, 0.3);
+}
+
+.glass-3d-button {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  box-shadow: 
+    0 10px 20px -5px rgba(139, 92, 246, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-3d-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 15px 30px -5px rgba(139, 92, 246, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+/* Neon Cyber 3D - Cyberpunk/Gamer with neon glows */
+.neon-3d-card {
+  background: rgba(26, 26, 46, 0.8);
+  box-shadow: 
+    0 0 20px rgba(6, 182, 212, 0.5),
+    0 0 40px rgba(6, 182, 212, 0.3),
+    inset 0 0 20px rgba(236, 72, 153, 0.1),
+    0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.neon-3d-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(236, 72, 153, 0.5));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.neon-3d-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 0 30px rgba(6, 182, 212, 0.7),
+    0 0 60px rgba(6, 182, 212, 0.4),
+    inset 0 0 30px rgba(236, 72, 153, 0.15),
+    0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.neon-3d-button {
+  background: linear-gradient(135deg, #06b6d4, #ec4899);
+  box-shadow: 
+    0 0 20px rgba(6, 182, 212, 0.6),
+    0 0 40px rgba(236, 72, 153, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-3d-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.neon-3d-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 0 30px rgba(6, 182, 212, 0.8),
+    0 0 60px rgba(236, 72, 153, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.neon-3d-button:hover::before {
+  left: 100%;
+}
+
+/* Crypto Verse 3D - Premium isometric 3D with beveled edges */
+.crypto-3d-card {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(30, 30, 60, 0.9));
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(139, 92, 246, 0.2);
+  border: 
+    2px solid rgba(139, 92, 246, 0.3),
+    1px solid rgba(139, 92, 246, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.crypto-3d-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+  pointer-events: none;
+}
+
+.crypto-3d-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(139, 92, 246, 0.4),
+    0 0 30px rgba(139, 92, 246, 0.3);
+}
+
+.crypto-3d-button {
+  background: linear-gradient(135deg, #8b5cf6, #f59e0b);
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(139, 92, 246, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.crypto-3d-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.crypto-3d-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.4),
+    inset 0 3px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(139, 92, 246, 0.5),
+    0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Common 3D utility classes */
+.transition-3d {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-lift-sm:hover {
+  transform: translateY(-2px);
+}
